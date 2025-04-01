@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sari Area Calculator</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: #1e1e1e;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+    label, select, input {
+      display: block;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+    input, select {
+      padding: 0.5rem;
+      background: #2c2c2c;
+      border: 1px solid #444;
+      color: #fff;
+      border-radius: 5px;
+    }
+    button {
+      background: #3f51b5;
+      color: white;
+      padding: 0.75rem;
+      border: none;
+      width: 100%;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 1rem;
+    }
+    .output {
+      margin-top: 1.5rem;
+      font-size: 1.2rem;
+    }
+    #copyBtn {
+      background: #2e7d32;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Sari Area Calculator</h2>
+    <label for="length">Sari Length (ft):</label>
+    <input type="number" id="length" placeholder="Enter sari length in feet" />
+
+    <label for="width">Sari Width (ft):</label>
+    <select id="width">
+      <option value="3.5">3.5</option>
+      <option value="4">4</option>
+      <option value="4.5">4.5</option>
+      <option value="5">5</option>
+    </select>
+
+    <label for="count">Number of Saris Completed:</label>
+    <input type="number" id="count" placeholder="Enter number of saris completed" />
+
+    <label for="manualGunthas">OR Enter Gunthas Directly:</label>
+    <input type="number" id="manualGunthas" placeholder="Enter area in gunthas (optional)" />
+
+    <label for="energyStart">Energy Input Start (W):</label>
+    <input type="number" id="energyStart" placeholder="Start energy (W)" />
+
+    <label for="energyEnd">Energy Input End (W):</label>
+    <input type="number" id="energyEnd" placeholder="End energy (W)" />
+
+    <label for="time">Time Taken (minutes):</label>
+    <input type="number" id="time" placeholder="Enter time taken in minutes" />
+
+    <button onclick="calculate()">Calculate</button>
+    <button id="copyBtn" onclick="copyResults()">Copy Inputs & Results</button>
+
+    <div class="output" id="result"></div>
+  </div>
+
+  <script>
+    function formatTime(totalMinutes) {
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = Math.round(totalMinutes % 60);
+      return `${hours}h ${minutes}m`;
+    }
+
+    function calculate() {
+      const length = parseFloat(document.getElementById("length").value);
+      const width = parseFloat(document.getElementById("width").value);
+      const count = parseFloat(document.getElementById("count").value) || 1;
+      const manualGunthas = parseFloat(document.getElementById("manualGunthas").value);
+      const energyStart = parseFloat(document.getElementById("energyStart").value) || 0;
+      const energyEnd = parseFloat(document.getElementById("energyEnd").value) || 0;
+      const timeMin = parseFloat(document.getElementById("time").value);
+
+      let areaSqFt, areaGunthas;
+
+      if (!isNaN(manualGunthas) && manualGunthas !== 0) {
+        areaGunthas = manualGunthas;
+        areaSqFt = areaGunthas * 1089;
+      } else {
+        if (!length || !width || !count) {
+          document.getElementById("result").innerHTML = "Please enter valid length, width, and sari count or enter gunthas directly.";
+          return;
+        }
+        const totalLength = length * count;
+        areaSqFt = totalLength * width;
+        areaGunthas = areaSqFt / 1089;
+      }
+
+      const energyUsedKW = (energyEnd - energyStart) / 1000;
+      const gunthaPerKW = energyUsedKW > 0 ? (areaGunthas / energyUsedKW).toFixed(2) : "N/A";
+
+      let speedKmph = "N/A";
+      let idealTime = "N/A";
+      let realTime = "N/A";
+
+      if (timeMin && areaSqFt) {
+        const timeHours = timeMin / 60;
+        speedKmph = (areaSqFt / 1000) / timeHours;
+
+        const idealTimeMin = (43560 / areaSqFt) * timeMin;
+        const realTimeMin = idealTimeMin * 1.25;
+
+        idealTime = formatTime(idealTimeMin);
+        realTime = formatTime(realTimeMin);
+      }
+
+      document.getElementById("result").innerHTML = `
+        Area: <strong>${areaGunthas.toFixed(2)}</strong> gunthas<br>
+        Gunthas per kW: <strong>${gunthaPerKW}</strong><br>
+        Speed: <strong>${typeof speedKmph === 'number' ? speedKmph.toFixed(2) + ' km/h' : speedKmph}</strong><br>
+        Ideal Time for 1 Acre: <strong>${idealTime}</strong><br>
+        Real Time for 1 Acre: <strong>${realTime}</strong>
+      `;
+    }
+
+    function copyResults() {
+      const length = document.getElementById("length").value;
+      const width = document.getElementById("width").value;
+      const count = document.getElementById("count").value;
+      const manualGunthas = document.getElementById("manualGunthas").value;
+      const energyStart = document.getElementById("energyStart").value;
+      const energyEnd = document.getElementById("energyEnd").value;
+      const time = document.getElementById("time").value;
+      const results = document.getElementById("result").innerText;
+
+      const text = `Inputs:
+Length: ${length} ft
+Width: ${width} ft
+Saris: ${count}
+Manual Gunthas: ${manualGunthas}
+Energy Start: ${energyStart} W
+Energy End: ${energyEnd} W
+Time: ${time} min
+
+Results:
+${results}`;
+
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Inputs and results copied to clipboard.");
+      });
+    }
+  </script>
+</body>
+</html>
