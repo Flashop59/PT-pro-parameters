@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>E farm machinery calculator</title>
+  <title>Sari Area Calculator</title>
   <style>
     body {
       background-color: #121212;
@@ -74,14 +74,14 @@
     <label for="manualGunthas">OR Enter Gunthas Directly:</label>
     <input type="number" id="manualGunthas" placeholder="Enter area in gunthas (optional)" />
 
-    <label for="energyStart">Energy Input Start (W):</label>
+    <label for="energyStart">Energy Input Start (Wh):</label>
     <input type="number" id="energyStart" placeholder="Start energy (W)" />
 
-    <label for="energyEnd">Energy Input End (W):</label>
+    <label for="energyEnd">Energy Input End (Wh):</label>
     <input type="number" id="energyEnd" placeholder="End energy (W)" />
 
-    <label for="time">Time Taken (minutes):</label>
-    <input type="number" id="time" placeholder="Enter time taken in minutes" />
+    <label for="time">Time Taken (MM.SS):</label>
+    <input type="number" id="time" placeholder="Enter time in minutes.seconds" />
 
     <button onclick="calculate()">Calculate</button>
     <button id="copyBtn" onclick="copyResults()">Copy Inputs & Results</button>
@@ -97,6 +97,13 @@
       return `${hours}h ${minutes}m`;
     }
 
+    function parseClockTime(input) {
+      const whole = Math.floor(input);
+      const decimal = input - whole;
+      const seconds = Math.round(decimal * 100); // convert .30 to 30
+      return whole + (seconds / 60);
+    }
+
     function calculate() {
       const length = parseFloat(document.getElementById("length").value);
       const width = parseFloat(document.getElementById("width").value);
@@ -104,7 +111,8 @@
       const manualGunthas = parseFloat(document.getElementById("manualGunthas").value);
       const energyStart = parseFloat(document.getElementById("energyStart").value) || 0;
       const energyEnd = parseFloat(document.getElementById("energyEnd").value) || 0;
-      const timeMin = parseFloat(document.getElementById("time").value);
+      let timeMinRaw = parseFloat(document.getElementById("time").value);
+      const timeMin = !isNaN(timeMinRaw) ? parseClockTime(timeMinRaw) : 0;
 
       let areaSqFt, areaGunthas;
 
@@ -125,30 +133,30 @@
       const gunthaPerKW = energyUsedKW > 0 ? (areaGunthas / energyUsedKW).toFixed(2) : "N/A";
 
       let speedKmph = "N/A";
-      let idealTime = "N/A";
-      let realTime = "N/A";
+      let Hrs per Acre (without turning) = "N/A";
+      let Hrs per Acre (with  turning) = "N/A";
 
       if (timeMin && length && count) {
         const totalLengthFt = length * count;
         const timeHours = timeMin / 60;
-        speedKmph = (totalLengthFt / 3280.84) / timeHours; // Convert feet to kilometers
+        speedKmph = (totalLengthFt / 3280.84) / timeHours;
       }
 
       if (timeMin && areaGunthas) {
         const timeHours = timeMin / 60;
-        const idealTimeHours = (40 / areaGunthas) * timeHours;
-        const realTimeHours = idealTimeHours * 1.25;
+        const Hrs per Acre (without turning)Hours = (40 / areaGunthas) * timeHours;
+        const Hrs per Acre (with  turning)Hours = Hrs per Acre (without turning)Hours * 1.25;
 
-        idealTime = formatTime(idealTimeHours * 60);
-        realTime = formatTime(realTimeHours * 60);
+        Hrs per Acre (without turning) = formatTime(Hrs per Acre (without turning)Hours * 60);
+        Hrs per Acre (with  turning) = formatTime(Hrs per Acre (with  turning)Hours * 60);
       }
 
       document.getElementById("result").innerHTML = `
         Area: <strong>${areaGunthas.toFixed(2)}</strong> gunthas<br>
         Gunthas per kW: <strong>${gunthaPerKW}</strong><br>
         Speed: <strong>${typeof speedKmph === 'number' ? speedKmph.toFixed(2) + ' km/h' : speedKmph}</strong><br>
-        Ideal Time for 1 Acre: <strong>${idealTime}</strong><br>
-        Real Time for 1 Acre: <strong>${realTime}</strong>
+        Ideal Time for 1 Acre: <strong>${Hrs per Acre (without turning)}</strong><br>
+        Real Time for 1 Acre: <strong>${Hrs per Acre (with  turning)}</strong>
       `;
     }
 
