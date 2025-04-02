@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sari Area Calculator</title>
+  <title>E Agro Machinery Calculation</title>
   <style>
     body {
       background-color: #121212;
@@ -56,7 +56,7 @@
 </head>
 <body>
   <div class="container">
-    <h2>Sari Area Calculator</h2>
+    <h2>E Agro Machinery Calculation</h2>
     <label for="length">Sari Length (ft):</label>
     <input type="number" id="length" placeholder="Enter sari length in feet" />
 
@@ -75,10 +75,10 @@
     <input type="number" id="manualGunthas" placeholder="Enter area in gunthas (optional)" />
 
     <label for="energyStart">Energy Input Start (Wh):</label>
-    <input type="number" id="energyStart" placeholder="Start energy (W)" />
+    <input type="number" id="energyStart" placeholder="Start energy (Wh)" />
 
     <label for="energyEnd">Energy Input End (Wh):</label>
-    <input type="number" id="energyEnd" placeholder="End energy (W)" />
+    <input type="number" id="energyEnd" placeholder="End energy (Wh)" />
 
     <label for="time">Time Taken (MM.SS):</label>
     <input type="number" id="time" placeholder="Enter time in minutes.seconds" />
@@ -100,7 +100,7 @@
     function parseClockTime(input) {
       const whole = Math.floor(input);
       const decimal = input - whole;
-      const seconds = Math.round(decimal * 100); // convert .30 to 30
+      const seconds = Math.round(decimal * 100);
       return whole + (seconds / 60);
     }
 
@@ -133,8 +133,8 @@
       const gunthaPerKW = energyUsedKW > 0 ? (areaGunthas / energyUsedKW).toFixed(2) : "N/A";
 
       let speedKmph = "N/A";
-      let Hrs per Acre (without turning) = "N/A";
-      let Hrs per Acre (with  turning) = "N/A";
+      let idealTime = "N/A";
+      let realTime = "N/A";
 
       if (timeMin && length && count) {
         const totalLengthFt = length * count;
@@ -144,19 +144,19 @@
 
       if (timeMin && areaGunthas) {
         const timeHours = timeMin / 60;
-        const Hrs per Acre (without turning)Hours = (40 / areaGunthas) * timeHours;
-        const Hrs per Acre (with  turning)Hours = Hrs per Acre (without turning)Hours * 1.25;
+        const idealTimeHours = (40 / areaGunthas) * timeHours;
+        const realTimeHours = idealTimeHours * 1.25;
 
-        Hrs per Acre (without turning) = formatTime(Hrs per Acre (without turning)Hours * 60);
-        Hrs per Acre (with  turning) = formatTime(Hrs per Acre (with  turning)Hours * 60);
+        idealTime = formatTime(idealTimeHours * 60);
+        realTime = formatTime(realTimeHours * 60);
       }
 
       document.getElementById("result").innerHTML = `
         Area: <strong>${areaGunthas.toFixed(2)}</strong> gunthas<br>
         Gunthas per kW: <strong>${gunthaPerKW}</strong><br>
         Speed: <strong>${typeof speedKmph === 'number' ? speedKmph.toFixed(2) + ' km/h' : speedKmph}</strong><br>
-        Ideal Time for 1 Acre: <strong>${Hrs per Acre (without turning)}</strong><br>
-        Real Time for 1 Acre: <strong>${Hrs per Acre (with  turning)}</strong>
+        Hrs per Acre without Turning: <strong>${idealTime}</strong><br>
+        Hrs per Acre with Turning: <strong>${realTime}</strong>
       `;
     }
 
@@ -175,8 +175,8 @@ Length: ${length} ft
 Width: ${width} ft
 Saris: ${count}
 Manual Gunthas: ${manualGunthas}
-Energy Start: ${energyStart} W
-Energy End: ${energyEnd} W
+Energy Start: ${energyStart} Wh
+Energy End: ${energyEnd} Wh
 Time: ${time} min
 
 Results:
@@ -194,7 +194,7 @@ ${results}`;
       const text = getResultsText();
       if (navigator.share) {
         navigator.share({
-          title: "Sari Area Calculation",
+          title: "E Agro Machinery Calculation",
           text: text
         }).catch(err => console.log("Share failed:", err));
       } else {
