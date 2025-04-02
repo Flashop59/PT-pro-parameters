@@ -128,15 +128,19 @@
       let idealTime = "N/A";
       let realTime = "N/A";
 
-      if (timeMin && areaSqFt) {
+      if (timeMin && length && count) {
+        const totalLengthFt = length * count;
         const timeHours = timeMin / 60;
-        speedKmph = (areaSqFt / 1000) / timeHours;
+        speedKmph = (totalLengthFt / 3280.84) / timeHours; // Convert feet to kilometers
+      }
 
-        const idealTimeMin = (43560 / areaSqFt) * timeMin;
-        const realTimeMin = idealTimeMin * 1.25;
+      if (timeMin && areaGunthas) {
+        const timeHours = timeMin / 60;
+        const idealTimeHours = (40 / areaGunthas) * timeHours;
+        const realTimeHours = idealTimeHours * 1.25;
 
-        idealTime = formatTime(idealTimeMin);
-        realTime = formatTime(realTimeMin);
+        idealTime = formatTime(idealTimeHours * 60);
+        realTime = formatTime(realTimeHours * 60);
       }
 
       document.getElementById("result").innerHTML = `
