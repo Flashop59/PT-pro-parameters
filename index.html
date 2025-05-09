@@ -31,6 +31,15 @@
       color: #fff;
       border-radius: 5px;
     }
+    input[type=range] {
+      padding: 0;
+      margin-top: 0.5rem;
+    }
+    .slider-label {
+      font-size: 0.9rem;
+      margin-top: -0.5rem;
+      margin-bottom: 1rem;
+    }
     button {
       background: #3f51b5;
       color: white;
@@ -76,9 +85,13 @@
 
     <label for="energyStart">Energy Input Start (Wh):</label>
     <input type="number" id="energyStart" placeholder="Start energy (Wh)" />
+    <label class="slider-label">OR Battery Start Percentage: <span id="battStartLabel">0%</span></label>
+    <input type="range" min="0" max="100" value="0" id="battStart" oninput="document.getElementById('battStartLabel').textContent = this.value + '%'">
 
     <label for="energyEnd">Energy Input End (Wh):</label>
     <input type="number" id="energyEnd" placeholder="End energy (Wh)" />
+    <label class="slider-label">OR Battery End Percentage: <span id="battEndLabel">0%</span></label>
+    <input type="range" min="0" max="100" value="0" id="battEnd" oninput="document.getElementById('battEndLabel').textContent = this.value + '%'">
 
     <label for="time">Time Taken (MM.SS):</label>
     <input type="number" id="time" placeholder="Enter time in minutes.seconds" />
@@ -109,13 +122,14 @@
       const width = parseFloat(document.getElementById("width").value);
       const count = parseFloat(document.getElementById("count").value) || 1;
       const manualGunthas = parseFloat(document.getElementById("manualGunthas").value);
-      const energyStart = parseFloat(document.getElementById("energyStart").value) || 0;
-      const energyEnd = parseFloat(document.getElementById("energyEnd").value) || 0;
+      const energyStart = parseFloat(document.getElementById("energyStart").value);
+      const energyEnd = parseFloat(document.getElementById("energyEnd").value);
+      const battStart = parseFloat(document.getElementById("battStart").value);
+      const battEnd = parseFloat(document.getElementById("battEnd").value);
       let timeMinRaw = parseFloat(document.getElementById("time").value);
       const timeMin = !isNaN(timeMinRaw) ? parseClockTime(timeMinRaw) : 0;
 
       let areaSqFt, areaGunthas;
-
       if (!isNaN(manualGunthas) && manualGunthas !== 0) {
         areaGunthas = manualGunthas;
         areaSqFt = areaGunthas * 1089;
@@ -129,7 +143,16 @@
         areaGunthas = areaSqFt / 1089;
       }
 
-      const energyUsedKW = (energyEnd - energyStart) / 1000;
+      // Energy Used Calculation
+      let energyUsedKW = 0;
+      if (!isNaN(energyStart) && !isNaN(energyEnd) && (energyEnd > energyStart)) {
+        energyUsedKW = (energyEnd - energyStart) / 1000;
+      } else if (battStart > battEnd) {
+        const batterySizeWh = 4300;
+        const deltaPerc = battStart - battEnd;
+        energyUsedKW = (batterySizeWh * deltaPerc / 100) / 1000;
+      }
+
       const gunthaPerKW = energyUsedKW > 0 ? (areaGunthas / energyUsedKW).toFixed(2) : "N/A";
 
       let speedKmph = "N/A";
@@ -167,6 +190,8 @@
       const manualGunthas = document.getElementById("manualGunthas").value;
       const energyStart = document.getElementById("energyStart").value;
       const energyEnd = document.getElementById("energyEnd").value;
+      const battStart = document.getElementById("battStart").value;
+      const battEnd = document.getElementById("battEnd").value;
       const time = document.getElementById("time").value;
       const results = document.getElementById("result").innerText;
 
@@ -177,6 +202,8 @@ Saris: ${count}
 Manual Gunthas: ${manualGunthas}
 Energy Start: ${energyStart} Wh
 Energy End: ${energyEnd} Wh
+Battery Start %: ${battStart}%
+Battery End %: ${battEnd}%
 Time: ${time} min
 
 Results:
